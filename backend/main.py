@@ -1,4 +1,7 @@
-# backend/main.py
+
+# backend/main.py —— 相比原版本只改了一处：把 init_db() 从模块导入期移到应用启动事件里
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,11 +9,17 @@ from pypinyin import lazy_pinyin, Style
 from snownlp import SnowNLP
 from datetime import datetime, timezone
 
-from storage import init_db, save_record, get_history   # ← 这一行：import 里多个 init_db
+from storage import init_db, save_record, get_history
 
-init_db()                                               # ← 这一行：启动时确保表在
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # MySQL 不可用时，这里报错只影响启动，不会让 import main 直接崩掉
+    init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,8 +42,10 @@ profile = {
     },
 }
 
+
 class AnalyzeRequest(BaseModel):
     text: str
+
 
 def score_label(score):
     if score >= 0.6:
@@ -44,10 +55,14 @@ def score_label(score):
     else:
         return "中性"
 
+
 @app.get("/api/profile")
 def get_profile():
     return profile
 
+
+# 注意：保持 def（同步）而不是 async def。
+# pymysql 是阻塞式驱动，放在 async def 里会卡住事件循环。
 @app.post("/api/analyze")
 def analyze(req: AnalyzeRequest):
     text = req.text
@@ -62,7 +77,7 @@ def analyze(req: AnalyzeRequest):
     save_record(result)
     return result
 
+
 @app.get("/api/history")
 def history():
     return get_history(10)
-
