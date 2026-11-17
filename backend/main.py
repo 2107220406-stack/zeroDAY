@@ -6,7 +6,9 @@ from pypinyin import lazy_pinyin, Style
 from snownlp import SnowNLP
 from datetime import datetime, timezone
 
-from storage import save_record, get_history      # ← 新增：跟存储层打交道，只经过这一行
+from storage import init_db, save_record, get_history   # ← 这一行：import 里多个 init_db
+
+init_db()                                               # ← 这一行：启动时确保表在
 
 app = FastAPI()
 
