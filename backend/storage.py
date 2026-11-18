@@ -1,28 +1,34 @@
-
 # backend/storage.py  —— MySQL 版（可直接替换原 SQLite 版）
-#
 # 对外接口与旧版完全一致：init_db() / save_record(record) / get_history(limit)
 # 因此 main.py 中的业务代码无需任何改动。
 import os
+from dotenv import load_dotenv # 新增
+
+# 加载当前目录下的 .env 文件
+load_dotenv() 
 
 import pymysql
 from pymysql.cursors import DictCursor
 
+# 加载当前目录下的 .env 文件
+load_dotenv() 
+
 # ---------------------------------------------------------------- 连接配置
 # 密码等敏感信息一律走环境变量，不要写死在代码里提交到 Git。
 # 未设置环境变量时，退回你当前环境的默认值，方便本地直接跑通。
+
 DB_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
     "port": int(os.getenv("MYSQL_PORT", "3306")),
     "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", "123456"),
+    "password": os.getenv("MYSQL_PASSWORD", ""),
     "charset": "utf8mb4",          # 中文 + emoji 必须 utf8mb4，用 utf8 会存不下部分汉字
 }
 DB_NAME = os.getenv("MYSQL_DATABASE", "word_lab")
 
 
 def _ensure_database():
-    """库不存在时自动创建（对应你说的“当前数据库中没有相对应的表”）。"""
+    """库不存在时自动创建。"""
     conn = pymysql.connect(**DB_CONFIG)          # 注意：此时不指定 database
     try:
         with conn.cursor() as cur:

@@ -1,4 +1,3 @@
-
 # backend/main.py —— 相比原版本只改了一处：把 init_db() 从模块导入期移到应用启动事件里
 from contextlib import asynccontextmanager
 

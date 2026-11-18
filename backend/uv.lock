@@ -50,6 +50,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "pymysql", extra = ["rsa"] },
     { name = "pypinyin" },
+    { name = "python-dotenv" },
     { name = "requests" },
     { name = "snownlp" },
 ]
@@ -59,6 +60,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.163.1" },
     { name = "pymysql", extras = ["rsa"], specifier = ">=1.2.4" },
     { name = "pypinyin", specifier = ">=0.55.0" },
+    { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "snownlp", specifier = ">=0.12.3" },
 ]
